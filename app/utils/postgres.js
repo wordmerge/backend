@@ -6,7 +6,7 @@ const Postgres = require('pg'),
       host = process.env.DB_POSTGRES_HOST,
       port = process.env.DB_HOSTGRES_PORT,
       
-      PostgresPool = new Postgres({
+      PostgresPool = new Postgres.Pool({
         database: db,
         user: username,
         password: password,

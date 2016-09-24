@@ -1,19 +1,12 @@
-const Postgres = require('./utils/postgres'),
-      Bcrypt = require('bcrypt');
+const Postgres = require('../utils/postgres'),
+      PasswordHash = require('password-hash');
 
 /**
 * @private
 */
 function _hashPassword(password) {
   return new Promise((resolve, reject) => {
-    Bcrypt.hash(password, 13, function(err, hash) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        
-        resolve(hash);
-    });
+    resolve(PasswordHash.generate(password));
   });
 }
 
@@ -22,16 +15,11 @@ function _hashPassword(password) {
 */
 function _comparePasswordToHash(password, hash) {
   return new Promise((resolve, reject) => {
-    Bcrypt.compare(password, hash, function(err, bool) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      if (Boolean(bool) === false) {
-        reject(new Error("Invalid password"));
-      }
-      resolve(bool);
-    });
+    if (PasswordHash.verify(password, hash)) {
+      resolve();
+      return;
+    }
+    reject(new Error("Incorrect Password"));
   });
 }
 
