@@ -50,8 +50,8 @@ function query({query, params=[]}) {
       });
     });
     
-    PostgresPool.on('error', () => {
-      console.error('Postgres Pool Error: ', err.message, err.stack)
+    PostgresPool.on('error', (err) => {
+      console.error('Postgres Pool Error: ', err.message, err.stack);
     });
   });
 }
