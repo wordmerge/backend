@@ -22,7 +22,7 @@ services:
       POSTGRES_USER: "wordmerge"
       POSTGRES_PASSWORD: "wordmerge"
     volumes:
-      - "./db/entrypoint:/docker-entrypoint-initdb.d/"
+      - "./db/relational_entrypoint:/docker-entrypoint-initdb.d/"
     restart: always
     
   db_graph:
