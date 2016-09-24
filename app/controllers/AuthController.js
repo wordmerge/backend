@@ -1,0 +1,120 @@
+const Postgres = require('./utils/postgres'),
+      Bcrypt = require('bcrypt');
+
+/**
+* @private
+*/
+function _hashPassword(password) {
+  return new Promise((resolve, reject) => {
+    Bcrypt.hash(password, 13, function(err, hash) {
+        if (err) {
+          reject(err);
+          return;
+        }
+        
+        resolve(hash);
+    });
+  });
+}
+
+/**
+* @private
+*/
+function _comparePasswordToHash(password, hash) {
+  return new Promise((resolve, reject) => {
+    Bcrypt.compare(password, hash, function(err, bool) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      if (Boolean(bool) === false) {
+        reject(new Error("Invalid password"));
+      }
+      resolve(bool);
+    });
+  });
+}
+
+
+/**
+* Logs a user in, provided a username and a password
+* @param {Object} req
+* @param {Object} res
+*/
+exports.login = (req, res) => {
+  let {username=null, password=null} = req.body;
+  
+  if (!username || !password) {
+    res.status(400).json({
+      status: 400,
+      message: "username and password are required parameters"
+    });
+  }
+  
+  Postgres.query(
+    'SELECT * FROM users WHERE username=$1',
+    [username, password]
+  ).then((result) => {
+    if (result.rows !== 1) {
+      throw new Error("User does not exist");
+    }
+    
+    return _comparePasswordToHash(
+      password,
+      result.rows[0].password
+    );
+  }).then(() => {
+    res.status(200).json({
+      status: 200,
+      message: "User succesfully validated",
+      auth_token: ""
+    });
+  }).catch((error) => {
+    res.status(400).json({
+      status: 400,
+      message: "User not validated"
+    });
+  });
+};
+
+
+/**
+* Signs a user up, provided an email, username, 
+*   password and image_url
+* @param {Object} req
+* @param {Object} res
+*/
+exports.signup = (req, res) => {
+  let {email=null, username=null, 
+       password=null, image_url} = req.body;
+  
+  if (!email || !username || !password) {
+    res.status(400).json({
+      status: 400,
+      message: "email, username and password are required parameters"
+    });
+  }
+  
+  _hashPassword(password).then((password) => {
+    return Postgres.query(
+      `INSERT INTO 
+        users (username, password, email, created_at) 
+        VALUES ($1, $2, $3, now()::timestamp)`, 
+      [username, password, email]
+    );
+  }).then((result) => {
+    if (result.rows !== 1) {
+      throw new Error("Error in user signup");
+    }
+    
+    res.status(200).json({
+      status: 200,
+      message: "User succesfully signed up"
+    });
+  }).catch((error) => {
+    res.status(400).json({
+      status: 400,
+      message: "Error in user signup"
+    });
+  });
+};
