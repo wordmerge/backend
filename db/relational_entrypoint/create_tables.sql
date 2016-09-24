@@ -1,5 +1,5 @@
 CREATE TABLE users (
-  user_id int NOT NULL UNIQUE,
+  user_id int NOT NULL UNIQUE AUTO_INCREMENT,
   username varchar(30) NOT NULL,
   password varchar(100) NOT NULL,
   email varchar(100) NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE rooms (
-  room_id int NOT NULL UNIQUE,
+  room_id varchar(6) NOT NULL UNIQUE,
   created_at timestamp NOT NULL,
   destroyed_at timestamp NOT NULL,
   PRIMARY KEY (room_id)
