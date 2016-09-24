@@ -3,6 +3,10 @@
 
 WordMerge is a mobile game where users engagingly try to merge together on a word based upon the clues of their previously uttered words. Behind the scenes, the application builds an ever-persistent graph of words along with their semantic relationships and connections - much like SyntaxNet, but with crowd-sourced data.
 
+## Running the Application
+
+To run the backend, provided you have [Docker](https://www.docker.com/) and [Docker-Compose](https://docs.docker.com/compose/) installed, fill out your environment variables on the `.env` file (using the `.env_sample` file as a guideline), simply run `docker-compose build` and `docker-compose up`. Also make sure to install application dependencies using `npm install`!
+
 ## Tech Stack
 WordMerge's backend is powered by the following technologies
 * **Docker** for environment containerization
