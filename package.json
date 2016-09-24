@@ -29,6 +29,7 @@
     "neo4j": "^2.0.0-RC2",
     "password-hash": "^1.2.2",
     "pg": "^6.1.0",
+    "randomstring": "^1.1.5",
     "socket.io": "^1.4.8"
   }
 }
