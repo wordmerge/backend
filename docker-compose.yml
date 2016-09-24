@@ -11,7 +11,7 @@ services:
       - db_relational
       - db_graph
     volumes:
-      - "./app:/source"
+      - ".:/source"
     restart: always
   
   db_relational:
