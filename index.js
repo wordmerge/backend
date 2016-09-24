@@ -1,10 +1,8 @@
 const App = require('express')(),
-      AuthController = require('./controllers/AuthController'),
-      RoomController = require('./controllers/RoomController');
+      AuthController = require('./app/controllers/AuthController'),
+      RoomController = require('./app/controllers/RoomController');
 
-require('dotenv').config({
-  path: '../.env'
-});
+require('dotenv').config();
 
 App.post('/auth/login', AuthController.login());
 App.post('/auth/signup', AuthController.signup());
