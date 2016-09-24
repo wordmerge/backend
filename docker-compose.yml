@@ -1,0 +1,33 @@
+version: '2'
+services:
+
+  web:
+    container_name: "wordmerge_backendapp"
+    build: .
+    command: "node /source/index.js"
+    ports:
+      - "8000:8000"
+    links:
+      - db_relational
+      - db_graph
+    volumes:
+      - "./app:/source"
+    restart: always
+  
+  db_relational:
+    image: postgres
+    container_name: "wordmerge_db_relational"
+    environment:
+      POSTGRES_DB: "wordmerge"
+      POSTGRES_USER: "wordmerge"
+      POSTGRES_PASSWORD: "wordmerge"
+    volumes:
+      - "./db/entrypoint:/docker-entrypoint-initdb.d/"
+    restart: always
+    
+  db_graph:
+    image: neo4j
+    container_name: "wordmerge_db_graph"
+    restart: always
+    ports:
+      - "8001:7474"
