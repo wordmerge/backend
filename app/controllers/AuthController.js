@@ -31,22 +31,22 @@ function _comparePasswordToHash(password, hash) {
 */
 exports.login = (req, res) => {
   let {username=null, password=null} = req.body;
-  
+
   if (!username || !password) {
     res.status(400).json({
       status: 400,
       message: "username and password are required parameters"
     });
   }
-  
+
   Postgres.query(
-    'SELECT * FROM users WHERE username=$1',
-    [username, password]
+    {query: 'SELECT * FROM users WHERE username=$1',
+    params: [username, password]}
   ).then((result) => {
     if (result.rows !== 1) {
       throw new Error("User does not exist");
     }
-    
+
     return _comparePasswordToHash(
       password,
       result.rows[0].password
@@ -67,34 +67,34 @@ exports.login = (req, res) => {
 
 
 /**
-* Signs a user up, provided an email, username, 
+* Signs a user up, provided an email, username,
 *   password and image_url
 * @param {Object} req
 * @param {Object} res
 */
 exports.signup = (req, res) => {
-  let {email=null, username=null, 
+  let {email=null, username=null,
        password=null, image_url} = req.body;
-  
+
   if (!email || !username || !password) {
     res.status(400).json({
       status: 400,
       message: "email, username and password are required parameters"
     });
   }
-  
+
   _hashPassword(password).then((password) => {
     return Postgres.query(
-      `INSERT INTO 
-        users (username, password, email, created_at) 
-        VALUES ($1, $2, $3, now()::timestamp)`, 
-      [username, password, email]
+      {query: `INSERT INTO
+        users (username, password, email, created_at)
+        VALUES ($1, $2, $3, now()::timestamp)`,
+      params: [username, password, email]}
     );
   }).then((result) => {
     if (result.rows !== 1) {
       throw new Error("Error in user signup");
     }
-    
+
     res.status(200).json({
       status: 200,
       message: "User succesfully signed up"
