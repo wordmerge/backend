@@ -4,8 +4,6 @@ const App = require('express')(),
 
 require('dotenv').config();
 
-
-
 App.listen(process.env.PORT, () => {
   console.log("Listening to Port:" + process.env.PORT);
 });

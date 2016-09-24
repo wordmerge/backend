@@ -4,7 +4,7 @@ services:
   web:
     container_name: "wordmerge_backendapp"
     build: .
-    command: "node /source/index.js"
+    command: "cd /source && node index.js"
     ports:
       - "8000:8000"
     links:
