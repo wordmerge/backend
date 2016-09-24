@@ -1,0 +1,30 @@
+{
+  "name": "wordmerge-backend",
+  "version": "1.0.0",
+  "description": "Backend for the WordMerge application",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wordmerge/backend.git"
+  },
+  "keywords": [
+    "wordmerge",
+    "node",
+    "graph",
+    "nlp"
+  ],
+  "author": "Alastair Paragas <alastairparagas@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wordmerge/backend/issues"
+  },
+  "homepage": "https://github.com/wordmerge/backend#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "lodash": "^4.16.1",
+    "neo4j": "^2.0.0-RC2",
+    "pg": "^6.1.0",
+    "socket.io": "^1.4.8"
+  }
+}
