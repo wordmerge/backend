@@ -1,5 +1,5 @@
 CREATE TABLE users (
-  user_id int AUTO_INCREMENT,
+  user_id SERIAL,
   username varchar(30) NOT NULL,
   password varchar(100) NOT NULL,
   email varchar(100) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE rooms (
 
 CREATE TABLE room_words (
   room_id varchar(6) NOT NULL REFERENCES rooms (room_id),
-  user_id int NOT NULL REFERENCES users (user_id), 
+  user_id SERIAL NOT NULL REFERENCES users (user_id),
   word varchar(12) NOT NULL,
   parent1 varchar(12),
   parent2 varchar(12),
@@ -29,7 +29,7 @@ CREATE TABLE room_words (
 
 CREATE TABLE room_users (
   room_id varchar(6) NOT NULL REFERENCES rooms (room_id),
-  user_id int NOT NULL REFERENCES users (user_id),
+  user_id SERIAL NOT NULL REFERENCES users (user_id),
   entered_at timestamp NOT NULL,
   left_at timestamp,
   PRIMARY KEY (room_id, user_id),
