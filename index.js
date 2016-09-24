@@ -1,4 +1,6 @@
-require('dotenv').config();
+require('dotenv').config({
+  'path': '/source/.env'
+});
 
 const App = require('express')(),
       AuthController = require('./app/controllers/AuthController'),
