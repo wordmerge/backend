@@ -12,8 +12,8 @@ const Postgres = require('../utils/postgres'),
 exports.middleware = (req, res, next) => {
   if (!("auth_token" in req.body)) {
     res.status(400).json({
-      "status": 400,
-      "message": "auth_token required for this route"
+      status: 400,
+      message: "auth_token required for this route"
     });
     return;
   }
@@ -24,8 +24,8 @@ exports.middleware = (req, res, next) => {
       next();
     }).catch((error) => {
       res.status(400).json({
-        "status": 400,
-        "message": error.message
+        status: 400,
+        message: error.message
       });
     });
 };
@@ -44,8 +44,8 @@ exports.create = (req, res) => {
 
   if (!game_mode || typeof game_mode !== "string") {
     res.status(400).json({
-      "status": 400,
-      "message": "Game mode is a required field"
+      status: 400,
+      message: "Game mode is a required field"
     });
   }
 
@@ -76,14 +76,14 @@ exports.create = (req, res) => {
     }
 
     res.status(200).json({
-      "status": 200,
-      "message": "Succesfully created room",
-      "room_id": result.rows[0].room_id
+      status: 200,
+      message: "Succesfully created room",
+      room_id: result.rows[0].room_id
     });
   }).catch((error) => {
     res.status(400).json({
-      "status": 400,
-      "message": error.message
+      status: 400,
+      message: error.message
     });
   });
 };
@@ -132,14 +132,14 @@ exports.join_specific = (req, res) => {
     }
 
     res.status(200).json({
-      "status": 200,
-      "message": "Succesfully joined a specific room",
-      "room_id": result.rows[0].room_id
+      status: 200,
+      message: "Succesfully joined a specific room",
+      room_id: result.rows[0].room_id
     });
   }).catch((error) => {
     res.status(400).json({
-      "status": 400,
-      "message": error.message
+      status: 400,
+      message: error.message
     });
   });
 };
@@ -152,10 +152,10 @@ exports.join_specific = (req, res) => {
 */
 exports.join_random = (req, res) => {
   const user_id = req.body.user.user_id;
+  let game_mode = null,
+      query;
 
-  let game_mode = null, query;
-
-  if ("game_mode" in req.body &&
+  if ("game_mode" in req.body && 
       typeof req.body.game_mode === "string") {
     game_mode = req.body.game_mode;
   }
@@ -214,14 +214,14 @@ exports.join_random = (req, res) => {
     }
 
     res.status(200).json({
-      "status": 200,
-      "message": "Succesfully joined a random room",
-      "room_id": result.rows[0].room_id
+      status: 200,
+      message: "Succesfully joined a random room",
+      room_id: result.rows[0].room_id
     });
   }).catch((error) => {
     res.status(400).json({
-      "status": 400,
-      "message": error.message
+      status: 400,
+      message: error.message
     });
   });
 };
@@ -268,13 +268,13 @@ exports.leave = (req, res) => {
       params: [room_id]
     }).then((result) => {
       res.status(200).json({
-        "status": 200,
-        "message": "Succesfully left the room",
+        status: 200,
+        message: "Succesfully left the room",
       });
     }).catch((error) => {
       res.status(400).json({
-        "status": 400,
-        "message": error.message
+        status: 400,
+        message: error.message
       });
     });
   });
