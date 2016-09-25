@@ -37,11 +37,11 @@ function sleep(time, callback) {
 sleep(50000, test);
 
 function test(){
-    AuthController.signup({body: {email: 'jmorg035@fiu.edu', username: 'jose', password: '1234', image_url: 'http://i.imgur.com/Qi1xDby.jpg'}});
-    AuthController.signup({body: {email: 'kmitc001@fiu.edu', username: 'kerlin', password: '1234', image_url: 'http://i.imgur.com/Qi1xDby.jpg'}});
-    RoomController.create({body: {user: {user_id: 1}, game_mode: 'classic'}});
-    RoomController.join_random({body: {user: {user_id: 2}, game_mode: 'classic'}});
-    //RoomController.join_random({body: {user: {user_id: 2}}});
+    //AuthController.signup({body: {email: 'jmorg035@fiu.edu', username: 'jose', password: '1234', image_url: 'http://i.imgur.com/Qi1xDby.jpg'}});
+    //AuthController.signup({body: {email: 'kmitc001@fiu.edu', username: 'kerlin', password: '1234', image_url: 'http://i.imgur.com/Qi1xDby.jpg'}});
+    //RoomController.create({body: {user: {user_id: 1}, game_mode: 'classic'}});
+    //RoomController.join_specific({body: {user: {user_id: 2}, room_id: 'QIMJUV'}});
+    RoomController.join_random({body: {user: {user_id: 2}}});
     /*postgres.query({query: 'SELECT * FROM rooms'}).then((res, rej) => {
         console.log(res);
 
