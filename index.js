@@ -41,10 +41,18 @@ App.post('/auth/randAuth', function(req, res) {
     });
 });
 
-setTimeout(() => {
+function sleep(time, callback) {
+    var stop = new Date().getTime();
+    while(new Date().getTime() < stop + time) {
+        ;
+    }
+    callback();
+}
+
+sleep(20000, () => {
     AuthController.signup({body: {email: 'test1@gmail.com', username: 'bill', password: '1234', image_url: ''}}, {});
     AuthController.signup({body: {email: 'test@gmail.com', username: 'frank', password: '1234', image_url: ''}}, {});
-}, 20000);
+});
 
 const SocketIO = require('socket.io')(
   App.listen(process.env.PORT, () => {
