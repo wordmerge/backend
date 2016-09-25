@@ -23,8 +23,9 @@ App.post('/room/leave', RoomController.leave);
 
 // Quick Hack ---->
 const sessionToken = require('./app/utils/sessionToken');
+var i = 0;
 App.post('/auth/randAuth', function(req, res) {
-    sessionToken.generateToken({id: Math.random()})
+    sessionToken.generateToken({user_id: i})
     .then((token) => {
         console.log(token);
       res.status(200).json({
@@ -38,6 +39,7 @@ App.post('/auth/randAuth', function(req, res) {
         message: error.message
       });
     });
+    i++;
 });
 
 function sleep(time, callback) {
@@ -48,10 +50,10 @@ function sleep(time, callback) {
     callback();
 }
 
-sleep(20000, () => {
+/*sleep(20000, () => {
     AuthController.signup({body: {email: 'test1@gmail.com', username: 'bill', password: '1234', image_url: ''}}, {});
     AuthController.signup({body: {email: 'test@gmail.com', username: 'frank', password: '1234', image_url: ''}}, {});
-});
+});*/
 
 const SocketIO = require('socket.io')(
   App.listen(process.env.PORT, () => {
