@@ -41,7 +41,7 @@ exports.create = (req, res) => {
   const room_id = RandomString.generate(6).toUpperCase(),
         user_id = req.body.user.user_id,
         game_mode = req.body.game_mode;
-
+    console.log(req);
   if (!game_mode || typeof game_mode !== "string") {
     res.status(400).json({
       status: 400,
