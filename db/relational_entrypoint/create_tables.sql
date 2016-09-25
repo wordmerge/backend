@@ -1,8 +1,8 @@
 CREATE TABLE users (
   user_id SERIAL,
-  username varchar(30) NOT NULL,
+  username varchar(30) NOT NULL UNIQUE,
   password varchar(100) NOT NULL,
-  email varchar(100) NOT NULL,
+  email varchar(100) NOT NULL UNIQUE,
   created_at timestamp NOT NULL,
   PRIMARY KEY (user_id)
 );
@@ -11,7 +11,7 @@ CREATE TABLE rooms (
   room_id varchar(6) NOT NULL UNIQUE,
   game_mode varchar(12) NOT NULL,
   created_at timestamp NOT NULL,
-  destroyed_at timestamp NOT NULL,
+  destroyed_at timestamp,
   PRIMARY KEY (room_id)
 );
 

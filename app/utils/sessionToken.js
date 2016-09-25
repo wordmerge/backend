@@ -21,14 +21,7 @@ function generateToken(payload) {
       reject(new Error("Invalid payload"));
     }
     
-    JsonWebToken.sign(payload, JWT_TOKEN_PASS, 
-                      (err, token) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(token);
-    });
+    resolve(JsonWebToken.sign(payload, JWT_TOKEN_PASS));
   });
 }
 

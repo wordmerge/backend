@@ -38,7 +38,7 @@ exports.middleware = (req, res, next) => {
 * @param {Object} res
 */
 exports.create = (req, res) => {
-  const room_id = RandomString.generate(6), 
+  const room_id = RandomString.generate(6).toUpperCase(), 
         user_id = req.body.user.user_id,
         game_mode = req.body.game_mode;
   
@@ -56,30 +56,18 @@ exports.create = (req, res) => {
     `,
     params: [room_id, game_mode]
   }).then((result) => {
-    if (result.rows.length !== 1) {
-      throw new Error(
-        "Room wasn't created. Collision may have occured."
-      );
-    }
-    
     return Postgres.query({
       query: `
-        INSERT INTO room_users (room_id, user_id, entered_at),
+        INSERT INTO room_users (room_id, user_id, entered_at) 
         VALUES ($1, $2, now()::timestamp)
       `,
       params: [room_id, user_id]
     });
-  }).then((result) => {
-    if (result.rows.length !== 1) {
-      throw new Error(
-        "User wasn't added to the room."
-      );
-    }
-    
+  }).then((result) => {    
     res.status(200).json({
       status: 200,
       message: "Succesfully created room",
-      room_id: result.rows[0].room_id
+      room_id: room_id
     });
   }).catch((error) => {
     res.status(400).json({
@@ -102,7 +90,8 @@ exports.join_specific = (req, res) => {
   Postgres.query({
     query: `
       SELECT * 
-      FROM rooms JOIN room_users ON room_id
+      FROM rooms JOIN room_users 
+        ON rooms.room_id = room_users.room_id
       WHERE room_id=$1 AND destroyed_at IS NULL
     `
   }).then((result) => {
@@ -111,7 +100,7 @@ exports.join_specific = (req, res) => {
         "No room with the provided room_id is open"
       );
     }
-    else if (result.rows.length > 1) {
+    else if (result.rows.length > 2) {
       throw new Error(
         "Room is already full!"
       );
@@ -119,18 +108,12 @@ exports.join_specific = (req, res) => {
     
     return Postgres.query({
       query: `
-        INSERT INTO room_users (room_id, user_id, entered_at),
+        INSERT INTO room_users (room_id, user_id, entered_at)
         VALUES ($1, $2, now()::timestamp)
       `,
       params: [room_id, user_id]
     });
   }).then((result) => {
-    if (result.rows.length !== 1) {
-      throw new Error(
-        "User wasn't added to the room. Error"
-      );
-    }
-    
     res.status(200).json({
       status: 200,
       message: "Succesfully joined a specific room",
@@ -168,7 +151,7 @@ exports.join_random = (req, res) => {
           (SELECT room_id, COUNT(*) as users_count 
             FROM room_users
             GROUP BY room_id) as room_users_count
-          ON room_id
+          ON rooms.room_id = room_users_count.room_id
         WHERE destroyed_at IS NULL AND 
           users_count=1
         LIMIT 1
@@ -183,7 +166,7 @@ exports.join_random = (req, res) => {
           (SELECT room_id, COUNT(*) as users_count 
             FROM room_users
             GROUP BY room_id) as room_users_count
-          ON room_id
+          ON rooms.room_id = room_users_count.room_id
         WHERE destroyed_at IS NULL AND 
           users_count=1 AND 
           game_mode=$1
@@ -209,12 +192,6 @@ exports.join_random = (req, res) => {
       params: [room_id, user_id]
     });
   }).then((result) => {
-    if (result.rows.length !== 1) {
-      throw new Error(
-        "User wasn't added to the room. Error"
-      );
-    }
-    
     res.status(200).json({
       status: 200,
       message: "Succesfully joined a random room",
