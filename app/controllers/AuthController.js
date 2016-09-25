@@ -40,11 +40,11 @@ exports.login = (req, res) => {
     });
   }
 
-  Postgres.query(
-    {query: 'SELECT * FROM users WHERE username=$1',
-    params: [username, password]}
-  ).then((result) => {
-    if (result.rows !== 1) {
+  Postgres.query({
+    query: 'SELECT * FROM users WHERE username=$1',
+    params: [username]
+  }).then((result) => {
+    if (result.rows.length !== 1) {
       throw new Error("User does not exist");
     }
     
@@ -55,6 +55,7 @@ exports.login = (req, res) => {
       return result.rows[0];
     });
   }).then((user) => {
+    delete user.password;
     return sessionToken.generateToken(user);
   }).then((token) => {
     res.status(200).json({
@@ -65,7 +66,7 @@ exports.login = (req, res) => {
   }).catch((error) => {
     res.status(400).json({
       status: 400,
-      message: "User not validated"
+      message: error.message
     });
   });
 };
@@ -96,10 +97,6 @@ exports.signup = (req, res) => {
       params: [username, password, email]}
     );
   }).then((result) => {
-    if (result.rows !== 1) {
-      throw new Error("Error in user signup");
-    }
-
     res.status(200).json({
       status: 200,
       message: "User succesfully signed up"

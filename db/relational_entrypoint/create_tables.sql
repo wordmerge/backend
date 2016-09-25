@@ -1,8 +1,8 @@
 CREATE TABLE users (
   user_id SERIAL,
-  username varchar(30) NOT NULL,
+  username varchar(30) NOT NULL UNIQUE,
   password varchar(100) NOT NULL,
-  email varchar(100) NOT NULL,
+  email varchar(100) NOT NULL UNIQUE,
   created_at timestamp NOT NULL,
   PRIMARY KEY (user_id)
 );
