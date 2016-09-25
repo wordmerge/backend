@@ -9,7 +9,6 @@ const App = require('express')(),
       AuthController = require('./app/controllers/AuthController'),
       RoomController = require('./app/controllers/RoomController'),
       RoomsManager = new (require('./app/utils/roomsManager'))();
-      console.log(RoomsManager);
 
 App.use(BodyParser.json());
 
@@ -41,11 +40,13 @@ App.post('/auth/randAuth', function(req, res) {
     });
 });
 
-const SocketIO = require('socket.io')(
-  App.listen(process.env.PORT, () => {
-    console.log("Listening to Port:" + process.env.PORT);
-  })
-);
+const Http = require('http'),
+      Server = Http.createServer(App), 
+      SocketIO = require('socket.io')(Server);
 
 SocketIO.on("connection",
             (socket) => RoomsManager.addSocket(socket));
+
+Server.listen(process.env.PORT, () => {
+  console.log("Listening to Port:" + process.env.PORT);
+});
