@@ -70,7 +70,7 @@ There are 2 types of routes - HTTP-based routes for synchronous request-response
   2. Server-side driven events (received by the client, sent by the server)
     * `{type:'room_ready', other_user:{username:string, image:string}}`
     * `{type:'said_word', other_user:{username:string,
-    image:string}}`
+    image:string}, word:string}`
     * `{type:'user_typed', other_user:{username:string, image:string}}`
     * `{type:'game_ended'}`
     

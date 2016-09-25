@@ -1,4 +1,5 @@
 const sessionToken = require('./sessionToken'),
+      postgres = require('./postgres'),
       _ = require('lodash');
 
 
@@ -72,15 +73,29 @@ function RoomsManager() {
         user_id = event.auth_token.user_id,
         room_id = users[user_id];
     
+    postgres.query({
+      query: `
+        INSERT INTO room_words (room_id, user_id, 
+        word, parent1, parent2, duration, halt, created_at)
+        VALUES ($1, $2, $3, $4, $5, 
+          $6::int, $7::boolean, now()::timestamp)
+      `,
+      params: [room_id, user_id, event.word, event.parent1, 
+              event.parent2, event.duration, event.halt]
+    });
+    
     socket.to(room_id).emit(
       'data', {
         type: 'said_word',
         other_user: {
           username: event.auth_token.username,
           image: event.auth_token.image_url
-        }
+        },
+        word: event.word
       }
     );
+    
+    
   };
   
   

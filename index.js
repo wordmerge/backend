@@ -6,9 +6,7 @@ const App = require('express')(),
       BodyParser = require('body-parser'),
       AuthController = require('./app/controllers/AuthController'),
       RoomController = require('./app/controllers/RoomController'),
-      RoomsManager = require('./utils/roomsManager')(),
-      
-      SocketIO = require('socket.io')(App);
+      RoomsManager = require('./app/utils/roomsManager')();
 
 App.use(BodyParser.json());
 
@@ -21,9 +19,11 @@ App.post('/room/join_specific', RoomController.join_specific);
 App.post('/room/join_random', RoomController.join_random);
 App.post('/room/leave', RoomController.leave);
 
-App.listen(process.env.PORT, () => {
-  console.log("Listening to Port:" + process.env.PORT);
-});
+const SocketIO = require('socket.io')(
+  App.listen(process.env.PORT, () => {
+    console.log("Listening to Port:" + process.env.PORT);
+  })
+);
 
 SocketIO.on("connection", 
             (socket) => RoomsManager.addSocket(socket));
