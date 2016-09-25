@@ -1,44 +1,7 @@
 const Postgres = require('../utils/postgres'),
-      JsonWebToken = require('jsonwebtoken'),
-      RandomString = require('randomstring'),
+      sessionToken = require('../utils/sessionToken'),
+      RandomString = require('randomstring');
 
-      JWT_TOKEN_PASS = process.env.JWT_TOKEN_PASS;
-
-/**
-* @private
-*/
-function _decodeToken(token) {
-  return new Promise((resolve, reject) => {
-    JsonWebToken.verify(token, JWT_TOKEN_PASS,
-                        (err, decoded) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(decoded);
-    });
-  });
-}
-
-/**
-* @private
-*/
-function _generateToken(payload) {
-  return new Promise((resolve, reject) => {
-    if (!payload || typeof payload !== "object") {
-      reject(new Error("Invalid payload"));
-    }
-
-    JsonWebToken.sign(payload, JWT_TOKEN_PASS,
-                      (err, token) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(token);
-    });
-  });
-}
 
 /**
 * Handles all /room route based requests
@@ -54,16 +17,17 @@ exports.middleware = (req, res, next) => {
     });
     return;
   }
-
-  _decodeToken(req.body.auth_token).then((payload) => {
-    req.body.user = payload;
-    next();
-  }).catch((error) => {
-    res.status(400).json({
-      "status": 400,
-      "message": error.message
+  sessionToken
+    .decodeToken(req.body.auth_token)
+    .then((payload) => {
+      req.body.user = payload;
+      next();
+    }).catch((error) => {
+      res.status(400).json({
+        "status": 400,
+        "message": error.message
+      });
     });
-  });
 };
 
 /**
