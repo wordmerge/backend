@@ -6,6 +6,7 @@ const App = require('express')(),
       BodyParser = require('body-parser'),
       AuthController = require('./app/controllers/AuthController'),
       RoomController = require('./app/controllers/RoomController'),
+      RoomsManager = require('./utils/roomsManager')(),
       
       SocketIO = require('socket.io')(App);
 
@@ -23,3 +24,6 @@ App.post('/room/leave', RoomController.leave);
 App.listen(process.env.PORT, () => {
   console.log("Listening to Port:" + process.env.PORT);
 });
+
+SocketIO.on("connection", 
+            (socket) => RoomsManager.addSocket(socket));

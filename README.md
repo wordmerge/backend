@@ -62,16 +62,17 @@ There are 2 types of routes - HTTP-based routes for synchronous request-response
   The following websocket flow offer the asynchronous publish-subscribe based functionality for the backend. All sent and received payloads are encoded in JSON.
   
   1. Client-side driven events (sent by the client, received by the server)
-    * `{event:'user_joined', auth_token:string}`
-    * `{event:'user_typing', auth_token:string}`
-    * `{event:'say_word', auth_token:string, word:string, parent1:string, parent2:string, duration:int, halt:boolean, created_at:timestamp}`
+    * `{type:'user_joined', auth_token:string, room_id:string}`
+    * `{type:'user_left', auth_token:string}`
+    * `{type:'user_typing', auth_token:string}`
+    * `{type:'say_word', auth_token:string, word:string, parent1:string, parent2:string, duration:int, halt:boolean, created_at:timestamp}`
   
   2. Server-side driven events (received by the client, sent by the server)
-    * `{event:'room_ready', other_user:{username:string, image:string}}`
-    * `{event:'said_word', other_user:{username:string,
+    * `{type:'room_ready', other_user:{username:string, image:string}}`
+    * `{type:'said_word', other_user:{username:string,
     image:string}}`
-    * `{event:'user_typed', other_user:{username:string, image:string}}`
-    * `{event:'wordmerge'}`
+    * `{type:'user_typed', other_user:{username:string, image:string}}`
+    * `{type:'game_ended'}`
     
 ## Relational Entities
 The following represents the entities as stored on our relational database:
