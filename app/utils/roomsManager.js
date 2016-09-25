@@ -93,9 +93,7 @@ function RoomsManager() {
         },
         word: event.word
       }
-    );
-    
-    
+    );  
   };
   
   
@@ -105,6 +103,8 @@ function RoomsManager() {
   * @param {Object} Socket.io TCP object
   */
   this.addSocket = (socket) => {
+    console.log("Socket added");
+    
     socket.on('data', (data) => {
       const event = JSON.parse(data);
       
@@ -116,15 +116,19 @@ function RoomsManager() {
           
           switch (event.type) {
             case 'user_joined':
+              console.log("User joined");
               this.user_joined(event);
               break;
             case 'user_left':
+              console.log("User left");
               this.user_left(event);
               break;
             case 'user_typing':
+              console.log("User typing");
               this.user_typing(event);
               break;
             case 'say_word':
+              console.log("User said word");
               this.say_word(event);
               break;
           }
