@@ -59,7 +59,6 @@ exports.middleware = (req, res, next) => {
     req.body.user = payload;
     next();
   }).catch((error) => {
-
     res.status(400).json({
       "status": 400,
       "message": error.message
@@ -73,16 +72,25 @@ exports.middleware = (req, res, next) => {
 * @param {Object} req
 * @param {Object} res
 */
-exports.create_specific = (req, res) => {
+
+exports.create = (req, res) => {
   const room_id = RandomString.generate(6),
-        user_id = req.body.user.user_id;
+        user_id = req.body.user.user_id,
+        game_mode = req.body.game_mode;
+
+  if (!game_mode || typeof game_mode !== "string") {
+    res.status(400).json({
+      "status": 400,
+      "message": "Game mode is a required field"
+    });
+  }
 
   Postgres.query({
     query: `
-      INSERT INTO rooms (room_id, created_at)
-      VALUES ($1, now()::timestamp)
+      INSERT INTO rooms (room_id, game_mode, created_at)
+      VALUES ($1, $2, now()::timestamp)
     `,
-    params: [room_id]
+    params: [room_id, game_mode]
   }).then((result) => {
     if (result.rows.length !== 1) {
       throw new Error(
@@ -181,18 +189,47 @@ exports.join_specific = (req, res) => {
 exports.join_random = (req, res) => {
   const user_id = req.body.user.user_id;
 
-  Postgres.query({
-    query: `
-      SELECT *
-      FROM rooms JOIN
-        (SELECT room_id, COUNT(*) as users_count
-          FROM room_users
-          GROUP BY room_id) as room_users_count
-        ON room_id
-      WHERE destroyed_at IS NULL AND users_count=1
-      LIMIT 1
-    `
-  }).then((result) => {
+  let game_mode = null, query;
+
+  if ("game_mode" in req.body &&
+      typeof req.body.game_mode === "string") {
+    game_mode = req.body.game_mode;
+  }
+
+  if (!game_mode) {
+    query = Postgres.query({
+      query: `
+        SELECT *
+        FROM rooms JOIN
+          (SELECT room_id, COUNT(*) as users_count
+            FROM room_users
+            GROUP BY room_id) as room_users_count
+          ON room_id
+        WHERE destroyed_at IS NULL AND
+          users_count=1
+        LIMIT 1
+      `
+    });
+  }
+  else {
+    query = Postgres.query({
+      query: `
+        SELECT *
+        FROM rooms JOIN
+          (SELECT room_id, COUNT(*) as users_count
+            FROM room_users
+            GROUP BY room_id) as room_users_count
+          ON room_id
+        WHERE destroyed_at IS NULL AND
+          users_count=1 AND
+          game_mode=$1
+        LIMIT 1
+      `,
+      params: [game_mode]
+    });
+  }
+
+  query.then((result) => {
     if (result.rows.length !== 1) {
       throw new Error(
         "No room is open for you to join"
