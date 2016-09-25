@@ -92,7 +92,7 @@ exports.create = (req, res) => {
     `,
     params: [room_id, game_mode]
   }).then((result) => {
-    if (result.rows.length !== 1) {
+    if (result.rowCount !== 1) {
       throw new Error(
         "Room wasn't created. Collision may have occured."
       );
@@ -204,7 +204,7 @@ exports.join_random = (req, res) => {
           (SELECT room_id, COUNT(*) as users_count
             FROM room_users
             GROUP BY room_id) as room_users_count
-          ON room_id
+          ON room_users_count.room_id = rooms.room_id
         WHERE destroyed_at IS NULL AND
           users_count=1
         LIMIT 1
@@ -219,7 +219,7 @@ exports.join_random = (req, res) => {
           (SELECT room_id, COUNT(*) as users_count
             FROM room_users
             GROUP BY room_id) as room_users_count
-          ON room_id
+          ON room_users_count.room_id = rooms.room_id
         WHERE destroyed_at IS NULL AND
           users_count=1 AND
           game_mode=$1
@@ -230,6 +230,7 @@ exports.join_random = (req, res) => {
   }
 
   query.then((result) => {
+      console.log(results);
     if (result.rows.length !== 1) {
       throw new Error(
         "No room is open for you to join"
@@ -245,6 +246,7 @@ exports.join_random = (req, res) => {
       params: [room_id, user_id]
     });
   }).then((result) => {
+      console.log(results);
     if (result.rows.length !== 1) {
       throw new Error(
         "User wasn't added to the room. Error"

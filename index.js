@@ -3,12 +3,13 @@ require('dotenv').config({
 });
 
 const App = require('express')(),
+      http = require('http'),
+      server = http.createServer(App),
       BodyParser = require('body-parser'),
       AuthController = require('./app/controllers/AuthController'),
       RoomController = require('./app/controllers/RoomController'),
-      postgres = require('./app/utils/postgres.js');
-
-      SocketIO = require('socket.io')(App);
+      postgres = require('./app/utils/postgres.js'),
+      SocketIO = require('socket.io').listen(server);
 
 App.use(BodyParser.json());
 
@@ -38,10 +39,11 @@ sleep(50000, test);
 function test(){
     AuthController.signup({body: {email: 'jmorg035@fiu.edu', username: 'jose', password: '1234', image_url: 'http://i.imgur.com/Qi1xDby.jpg'}});
     AuthController.signup({body: {email: 'kmitc001@fiu.edu', username: 'kerlin', password: '1234', image_url: 'http://i.imgur.com/Qi1xDby.jpg'}});
-    RoomController.create_specific({body: {user: {user_id: 1}}});
+    RoomController.create({body: {user: {user_id: 1}, game_mode: 'classic'}});
+    RoomController.join_random({body: {user: {user_id: 2}, game_mode: 'classic'}});
     //RoomController.join_random({body: {user: {user_id: 2}}});
-    postgres.query({query: 'SELECT * FROM rooms'}).then((res, rej) => {
+    /*postgres.query({query: 'SELECT * FROM rooms'}).then((res, rej) => {
         console.log(res);
 
-    });
+    });*/
 }
