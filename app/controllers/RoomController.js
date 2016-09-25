@@ -61,7 +61,6 @@ exports.create = (req, res) => {
         "Room wasn't created. Collision may have occured."
       );
     }
-    console.log('inserting into room_users');
     return Postgres.query({
       query: `
         INSERT INTO room_users (room_id, user_id, entered_at)
@@ -70,7 +69,7 @@ exports.create = (req, res) => {
       params: [room_id, user_id]
     });
   }).then((result) => {
-    if (result.rows.length !== 1) {
+    if (result.rowCount !== 1) {
       throw new Error(
         "User wasn't added to the room."
       );
@@ -102,9 +101,10 @@ exports.join_specific = (req, res) => {
   Postgres.query({
     query: `
       SELECT *
-      FROM rooms JOIN room_users ON room_id
-      WHERE room_id=$1 AND destroyed_at IS NULL
-    `
+      FROM rooms JOIN room_users ON rooms.room_id=room_users.room_id
+      WHERE room_users.room_id=$1 AND destroyed_at IS NULL
+    `,
+    params: [room_id]
   }).then((result) => {
     if (result.rows.length === 0) {
       throw new Error(
@@ -159,7 +159,6 @@ exports.join_random = (req, res) => {
       typeof req.body.game_mode === "string") {
     game_mode = req.body.game_mode;
   }
-
   if (!game_mode) {
     query = Postgres.query({
       query: `
@@ -192,10 +191,8 @@ exports.join_random = (req, res) => {
       params: [game_mode]
     });
   }
-
   query.then((result) => {
-      console.log(results);
-    if (result.rows.length !== 1) {
+    if (result.rowCount !== 1) {
       throw new Error(
         "No room is open for you to join"
       );
@@ -210,8 +207,7 @@ exports.join_random = (req, res) => {
       params: [room_id, user_id]
     });
   }).then((result) => {
-      console.log(results);
-    if (result.rows.length !== 1) {
+    if (result.rowCount !== 1) {
       throw new Error(
         "User wasn't added to the room. Error"
       );
@@ -248,7 +244,7 @@ exports.leave = (req, res) => {
     `,
     params: [room_id]
   }).then((result) => {
-    if (result.rows.length !== 1) {
+    if (result.rowCount !== 1) {
       throw new Error(
         "Either that room does not exist or room is already closed"
       );
