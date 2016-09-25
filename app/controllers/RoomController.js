@@ -1,7 +1,7 @@
 const Postgres = require('../utils/postgres'),
       JsonWebToken = require('jsonwebtoken'),
       RandomString = require('randomstring'),
-      
+
       JWT_TOKEN_PASS = process.env.JWT_TOKEN_PASS;
 
 /**
@@ -9,7 +9,7 @@ const Postgres = require('../utils/postgres'),
 */
 function _decodeToken(token) {
   return new Promise((resolve, reject) => {
-    JsonWebToken.verify(token, JWT_TOKEN_PASS, 
+    JsonWebToken.verify(token, JWT_TOKEN_PASS,
                         (err, decoded) => {
       if (err) {
         reject(err);
@@ -28,8 +28,8 @@ function _generateToken(payload) {
     if (!payload || typeof payload !== "object") {
       reject(new Error("Invalid payload"));
     }
-    
-    JsonWebToken.sign(payload, JWT_TOKEN_PASS, 
+
+    JsonWebToken.sign(payload, JWT_TOKEN_PASS,
                       (err, token) => {
       if (err) {
         reject(err);
@@ -54,12 +54,12 @@ exports.middleware = (req, res, next) => {
     });
     return;
   }
-  
+
   _decodeToken(req.body.auth_token).then((payload) => {
     req.body.user = payload;
     next();
   }).catch((error) => {
-    
+
     res.status(400).json({
       "status": 400,
       "message": error.message
@@ -68,18 +68,18 @@ exports.middleware = (req, res, next) => {
 };
 
 /**
-* Creates a specific room and adds the requesting 
+* Creates a specific room and adds the requesting
 *   user to that room
 * @param {Object} req
 * @param {Object} res
 */
 exports.create_specific = (req, res) => {
-  const room_id = RandomString.generate(6), 
+  const room_id = RandomString.generate(6),
         user_id = req.body.user.user_id;
-  
+
   Postgres.query({
     query: `
-      INSERT INTO rooms (room_id, created_at) 
+      INSERT INTO rooms (room_id, created_at)
       VALUES ($1, now()::timestamp)
     `,
     params: [room_id]
@@ -89,10 +89,10 @@ exports.create_specific = (req, res) => {
         "Room wasn't created. Collision may have occured."
       );
     }
-    
+    console.log('inserting into room_users');
     return Postgres.query({
       query: `
-        INSERT INTO room_users (room_id, user_id, entered_at),
+        INSERT INTO room_users (room_id, user_id, entered_at)
         VALUES ($1, $2, now()::timestamp)
       `,
       params: [room_id, user_id]
@@ -103,7 +103,7 @@ exports.create_specific = (req, res) => {
         "User wasn't added to the room."
       );
     }
-    
+
     res.status(200).json({
       "status": 200,
       "message": "Succesfully created room",
@@ -118,7 +118,7 @@ exports.create_specific = (req, res) => {
 };
 
 /**
-* Joins a specific room and adds the requesting 
+* Joins a specific room and adds the requesting
 *   user to that room.
 * @param {Object} req
 * @param {Object} res
@@ -126,10 +126,10 @@ exports.create_specific = (req, res) => {
 exports.join_specific = (req, res) => {
   const room_id = req.body.room_id,
         user_id = req.body.user.user_id;
-  
+
   Postgres.query({
     query: `
-      SELECT * 
+      SELECT *
       FROM rooms JOIN room_users ON room_id
       WHERE room_id=$1 AND destroyed_at IS NULL
     `
@@ -144,10 +144,10 @@ exports.join_specific = (req, res) => {
         "Room is already full!"
       );
     }
-    
+
     return Postgres.query({
       query: `
-        INSERT INTO room_users (room_id, user_id, entered_at),
+        INSERT INTO room_users (room_id, user_id, entered_at)
         VALUES ($1, $2, now()::timestamp)
       `,
       params: [room_id, user_id]
@@ -158,7 +158,7 @@ exports.join_specific = (req, res) => {
         "User wasn't added to the room. Error"
       );
     }
-    
+
     res.status(200).json({
       "status": 200,
       "message": "Succesfully joined a specific room",
@@ -173,19 +173,19 @@ exports.join_specific = (req, res) => {
 };
 
 /**
-* Joins a random room and adds the requesting  
+* Joins a random room and adds the requesting
 *   user to that room.
 * @param {Object} req
 * @param {Object} res
 */
 exports.join_random = (req, res) => {
   const user_id = req.body.user.user_id;
-  
+
   Postgres.query({
     query: `
-      SELECT * 
-      FROM rooms JOIN 
-        (SELECT room_id, COUNT(*) as users_count 
+      SELECT *
+      FROM rooms JOIN
+        (SELECT room_id, COUNT(*) as users_count
           FROM room_users
           GROUP BY room_id) as room_users_count
         ON room_id
@@ -199,10 +199,10 @@ exports.join_random = (req, res) => {
       );
     }
     const room_id = result.rows[0].room_id;
-    
+
     return Postgres.query({
       query: `
-        INSERT INTO room_users (room_id, user_id, entered_at),
+        INSERT INTO room_users (room_id, user_id, entered_at)
         VALUES ($1, $2, now()::timestamp)
       `,
       params: [room_id, user_id]
@@ -213,7 +213,7 @@ exports.join_random = (req, res) => {
         "User wasn't added to the room. Error"
       );
     }
-    
+
     res.status(200).json({
       "status": 200,
       "message": "Succesfully joined a random room",
@@ -228,7 +228,7 @@ exports.join_random = (req, res) => {
 };
 
 /**
-* Leaves a room and adds the requesting user 
+* Leaves a room and adds the requesting user
 *   to that room
 * @param {Object} req
 * @param {Object} res
@@ -236,12 +236,12 @@ exports.join_random = (req, res) => {
 exports.leave = (req, res) => {
   const user_id = req.body.user.user_id,
         room_id = req.body.room_id;
-  
+
   Postgres.query({
     query: `
-      SELECT * 
-      FROM rooms 
-      WHERE room_id=$1 AND destroyed_at IS NULL 
+      SELECT *
+      FROM rooms
+      WHERE room_id=$1 AND destroyed_at IS NULL
     `,
     params: [room_id]
   }).then((result) => {
@@ -250,7 +250,7 @@ exports.leave = (req, res) => {
         "Either that room does not exist or room is already closed"
       );
     }
-    
+
     return Postgres.query({
       query: `
         UPDATE rooms

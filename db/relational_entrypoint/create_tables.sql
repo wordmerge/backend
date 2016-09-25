@@ -10,7 +10,7 @@ CREATE TABLE users (
 CREATE TABLE rooms (
   room_id varchar(6) NOT NULL UNIQUE,
   created_at timestamp NOT NULL,
-  destroyed_at timestamp NOT NULL,
+  destroyed_at timestamp,
   PRIMARY KEY (room_id)
 );
 
