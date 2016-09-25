@@ -22,12 +22,8 @@ App.post('/room/join_specific', RoomController.join_specific);
 App.post('/room/join_random', RoomController.join_random);
 App.post('/room/leave', RoomController.leave);
 
+// Quick Hack ---->
 const sessionToken = require('./app/utils/sessionToken');
-function _hashPassword(password) {
-  return new Promise((resolve, reject) => {
-    resolve(PasswordHash.generate(password));
-  });
-}
 App.post('/auth/randAuth', function(req, res) {
     sessionToken.generateToken({id: Math.random()})
     .then((token) => {
@@ -43,8 +39,7 @@ App.post('/auth/randAuth', function(req, res) {
         message: error.message
       });
     });
-})
-
+});
 
 const SocketIO = require('socket.io')(
   App.listen(process.env.PORT, () => {
