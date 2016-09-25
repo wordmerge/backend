@@ -17,7 +17,6 @@ exports.middleware = (req, res, next) => {
     });
     return;
   }
-  
   sessionToken
     .decodeToken(req.body.auth_token)
     .then((payload) => {
@@ -32,38 +31,39 @@ exports.middleware = (req, res, next) => {
 };
 
 /**
-* Creates a specific room and adds the requesting 
+* Creates a specific room and adds the requesting
 *   user to that room
 * @param {Object} req
 * @param {Object} res
 */
+
 exports.create = (req, res) => {
-  const room_id = RandomString.generate(6).toUpperCase(), 
+  const room_id = RandomString.generate(6).toUpperCase(),
         user_id = req.body.user.user_id,
         game_mode = req.body.game_mode;
-  
+
   if (!game_mode || typeof game_mode !== "string") {
     res.status(400).json({
       status: 400,
       message: "Game mode is a required field"
     });
   }
-  
+
   Postgres.query({
     query: `
-      INSERT INTO rooms (room_id, game_mode, created_at) 
+      INSERT INTO rooms (room_id, game_mode, created_at)
       VALUES ($1, $2, now()::timestamp)
     `,
     params: [room_id, game_mode]
   }).then((result) => {
     return Postgres.query({
       query: `
-        INSERT INTO room_users (room_id, user_id, entered_at) 
+        INSERT INTO room_users (room_id, user_id, entered_at)
         VALUES ($1, $2, now()::timestamp)
       `,
       params: [room_id, user_id]
     });
-  }).then((result) => {    
+  }).then((result) => {
     res.status(200).json({
       status: 200,
       message: "Succesfully created room",
@@ -78,7 +78,7 @@ exports.create = (req, res) => {
 };
 
 /**
-* Joins a specific room and adds the requesting 
+* Joins a specific room and adds the requesting
 *   user to that room.
 * @param {Object} req
 * @param {Object} res
@@ -86,14 +86,14 @@ exports.create = (req, res) => {
 exports.join_specific = (req, res) => {
   const room_id = req.body.room_id,
         user_id = req.body.user.user_id;
-  
+
   Postgres.query({
     query: `
-      SELECT * 
-      FROM rooms JOIN room_users 
-        ON rooms.room_id = room_users.room_id
-      WHERE room_id=$1 AND destroyed_at IS NULL
-    `
+      SELECT *
+      FROM rooms JOIN room_users ON rooms.room_id=room_users.room_id
+      WHERE room_users.room_id=$1 AND destroyed_at IS NULL
+    `,
+    params: [room_id]
   }).then((result) => {
     if (result.rows.length === 0) {
       throw new Error(
@@ -105,7 +105,7 @@ exports.join_specific = (req, res) => {
         "Room is already full!"
       );
     }
-    
+
     return Postgres.query({
       query: `
         INSERT INTO room_users (room_id, user_id, entered_at)
@@ -128,31 +128,30 @@ exports.join_specific = (req, res) => {
 };
 
 /**
-* Joins a random room and adds the requesting  
+* Joins a random room and adds the requesting
 *   user to that room.
 * @param {Object} req
 * @param {Object} res
 */
 exports.join_random = (req, res) => {
   const user_id = req.body.user.user_id;
-  let game_mode = null, 
+  let game_mode = null,
       query;
-  
-  if ("game_mode" in req.body && 
+
+  if ("game_mode" in req.body &&
       typeof req.body.game_mode === "string") {
     game_mode = req.body.game_mode;
   }
-  
   if (!game_mode) {
     query = Postgres.query({
       query: `
-        SELECT * 
-        FROM rooms JOIN 
-          (SELECT room_id, COUNT(*) as users_count 
+        SELECT *
+        FROM rooms JOIN
+          (SELECT room_id, COUNT(*) as users_count
             FROM room_users
             GROUP BY room_id) as room_users_count
           ON rooms.room_id = room_users_count.room_id
-        WHERE destroyed_at IS NULL AND 
+        WHERE destroyed_at IS NULL AND
           users_count=1
         LIMIT 1
       `
@@ -161,32 +160,31 @@ exports.join_random = (req, res) => {
   else {
     query = Postgres.query({
       query: `
-        SELECT * 
-        FROM rooms JOIN 
-          (SELECT room_id, COUNT(*) as users_count 
+        SELECT *
+        FROM rooms JOIN
+          (SELECT room_id, COUNT(*) as users_count
             FROM room_users
             GROUP BY room_id) as room_users_count
-          ON rooms.room_id = room_users_count.room_id
-        WHERE destroyed_at IS NULL AND 
-          users_count=1 AND 
+          ON room_users_count.room_id = rooms.room_id
+        WHERE destroyed_at IS NULL AND
+          users_count=1 AND
           game_mode=$1
         LIMIT 1
       `,
       params: [game_mode]
     });
   }
-  
   query.then((result) => {
-    if (result.rows.length !== 1) {
+    if (result.rowCount !== 1) {
       throw new Error(
         "No room is open for you to join"
       );
     }
     const room_id = result.rows[0].room_id;
-    
+
     return Postgres.query({
       query: `
-        INSERT INTO room_users (room_id, user_id, entered_at),
+        INSERT INTO room_users (room_id, user_id, entered_at)
         VALUES ($1, $2, now()::timestamp)
       `,
       params: [room_id, user_id]
@@ -206,7 +204,7 @@ exports.join_random = (req, res) => {
 };
 
 /**
-* Leaves a room and adds the requesting user 
+* Leaves a room and adds the requesting user
 *   to that room
 * @param {Object} req
 * @param {Object} res
@@ -214,21 +212,21 @@ exports.join_random = (req, res) => {
 exports.leave = (req, res) => {
   const user_id = req.body.user.user_id,
         room_id = req.body.room_id;
-  
+
   Postgres.query({
     query: `
-      SELECT * 
-      FROM rooms 
-      WHERE room_id=$1 AND destroyed_at IS NULL 
+      SELECT *
+      FROM rooms
+      WHERE room_id=$1 AND destroyed_at IS NULL
     `,
     params: [room_id]
   }).then((result) => {
-    if (result.rows.length !== 1) {
+    if (result.rowCount !== 1) {
       throw new Error(
         "Either that room does not exist or room is already closed"
       );
     }
-    
+
     return Postgres.query({
       query: `
         UPDATE rooms
