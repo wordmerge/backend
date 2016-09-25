@@ -1,4 +1,5 @@
 const Postgres = require('../utils/postgres'),
+      sessionToken = require('../utils/sessionToken'),
       PasswordHash = require('password-hash');
 
 /**
@@ -46,16 +47,20 @@ exports.login = (req, res) => {
     if (result.rows !== 1) {
       throw new Error("User does not exist");
     }
-
+    
     return _comparePasswordToHash(
       password,
       result.rows[0].password
-    );
-  }).then(() => {
+    ).then(() => {
+      return result.rows[0];
+    });
+  }).then((user) => {
+    return sessionToken.generateToken(user);
+  }).then((token) => {
     res.status(200).json({
       status: 200,
       message: "User succesfully validated",
-      auth_token: ""
+      auth_token: token
     });
   }).catch((error) => {
     res.status(400).json({
