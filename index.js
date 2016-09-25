@@ -30,6 +30,7 @@ function _hashPassword(password) {
 App.post('/auth/randAuth', function(req, res) {
     sessionToken.generateToken({id: Math.random()})
     .then((token) => {
+        console.log(token);
       res.status(200).json({
         status: 200,
         message: "User succesfully validated",
