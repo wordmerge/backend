@@ -9,6 +9,7 @@ const App = require('express')(),
       AuthController = require('./app/controllers/AuthController'),
       RoomController = require('./app/controllers/RoomController'),
       RoomsManager = require('./app/utils/roomsManager')();
+      console.log(RoomsManager);
 
 App.use(BodyParser.json());
 
