@@ -21,8 +21,7 @@ App.post('/room/join_specific', RoomController.join_specific);
 App.post('/room/join_random', RoomController.join_random);
 App.post('/room/leave', RoomController.leave);
 
-const PasswordHash = require('password-hash');
-const sessionToken = require('../utils/sessionToken');
+const sessionToken = require('./app/utils/sessionToken');
 function _hashPassword(password) {
   return new Promise((resolve, reject) => {
     resolve(PasswordHash.generate(password));
