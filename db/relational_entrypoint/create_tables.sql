@@ -9,6 +9,7 @@ CREATE TABLE users (
 
 CREATE TABLE rooms (
   room_id varchar(6) NOT NULL UNIQUE,
+  game_mode varchar(12) NOT NULL,
   created_at timestamp NOT NULL,
   destroyed_at timestamp NOT NULL,
   PRIMARY KEY (room_id)
