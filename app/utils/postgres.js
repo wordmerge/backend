@@ -22,14 +22,23 @@ const Postgres = require('pg'),
 *   PostgresSQL. For more information on accepted queries 
 *   and outputs, please consult - 
 *   https://github.com/brianc/node-postgres/wiki/
-* @param {Object} {query:string, params:list?}
+* @param {Object} {query:string, params:[]?}
 * @returns {Promise} 
-*   node-postgres result on SUCCESS, Error otherwise
+*   node-postgres' result on SUCCESS, error otherwise
 */
 function query({query, params=[]}) {
   return new Promise((resolve, reject) => {
+    // param:query type check
     if (!query) {
       reject(new Error("Query required"));
+    }
+    else if (typeof query !== "string") {
+      reject(new Error("Query is a string"));
+    }
+    
+    // param:params type check 
+    if (params && params.constructor !== Array) {
+      reject(new Error("Params is a list"))
     }
     
     PostgresPool.connect((err, client, done) => {
